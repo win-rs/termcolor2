@@ -1,4 +1,4 @@
-termcolor
+termcolor2
 =========
 A simple cross platform library for writing colored text to a terminal. This
 library writes colored text either using standard ANSI escape sequences or by
@@ -6,18 +6,19 @@ interacting with the Windows console. Several convenient abstractions are
 provided for use in single-threaded or multi-threaded command line
 applications.
 
-[![Build status](https://github.com/BurntSushi/termcolor/workflows/ci/badge.svg)](https://github.com/BurntSushi/termcolor/actions)
-[![crates.io](https://img.shields.io/crates/v/termcolor.svg)](https://crates.io/crates/termcolor)
+This is a fork of [termcolor](https://github.com/BurntSushi/termcolor).
+
+[![crates.io](https://img.shields.io/crates/v/termcolor2.svg)](https://crates.io/crates/termcolor2)
 
 Dual-licensed under MIT or the [UNLICENSE](https://unlicense.org/).
 
 ### Documentation
 
-[https://docs.rs/termcolor](https://docs.rs/termcolor)
+[https://docs.rs/termcolor2](https://docs.rs/termcolor2)
 
 ### Usage
 
-Run `cargo add termcolor` to add this dependency to your `Cargo.toml` file.
+Run `cargo add termcolor2` to add this dependency to your `Cargo.toml` file.
 
 ### Organization
 
@@ -47,7 +48,7 @@ example, to write some green text:
 
 ```rust
 use std::io::{self, Write};
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+use termcolor2::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 fn write_green() -> io::Result<()> {
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
@@ -60,13 +61,13 @@ fn write_green() -> io::Result<()> {
 
 A `BufferWriter` can create buffers and write buffers to stdout or stderr. It
 does *not* implement `io::Write` or `WriteColor` itself. Instead, `Buffer`
-implements `io::Write` and `termcolor::WriteColor`.
+implements `io::Write` and `termcolor2::WriteColor`.
 
 This example shows how to print some green text to stderr.
 
 ```rust
 use std::io::{self, Write};
-use termcolor::{BufferWriter, Color, ColorChoice, ColorSpec, WriteColor};
+use termcolor2::{BufferWriter, Color, ColorChoice, ColorSpec, WriteColor};
 
 fn write_green() -> io::Result<()> {
     let mut bufwtr = BufferWriter::stderr(ColorChoice::Always);
@@ -79,11 +80,11 @@ fn write_green() -> io::Result<()> {
 
 ### Automatic color selection
 
-When building a writer with termcolor, the caller must provide a
-[`ColorChoice`](https://docs.rs/termcolor/1.*/termcolor/enum.ColorChoice.html)
-selection. When the color choice is `Auto`, termcolor will attempt to determine
+When building a writer with termcolor2, the caller must provide a
+[`ColorChoice`](https://docs.rs/termcolor2/0.*/termcolor/enum.ColorChoice.html)
+selection. When the color choice is `Auto`, termcolor2 will attempt to determine
 whether colors should be enabled by inspecting the environment. Currently,
-termcolor will inspect the `TERM` and `NO_COLOR` environment variables:
+termcolor2 will inspect the `TERM` and `NO_COLOR` environment variables:
 
 * If `NO_COLOR` is set to any value, then colors will be suppressed.
 * If `TERM` is set to `dumb`, then colors will be suppressed.
@@ -92,13 +93,13 @@ termcolor will inspect the `TERM` and `NO_COLOR` environment variables:
 
 This decision procedure may change over time.
 
-Currently, `termcolor` does not attempt to detect whether a tty is present or
+Currently, `termcolor2` does not attempt to detect whether a tty is present or
 not. To achieve that, please use
 [`std::io::IsTerminal`](https://doc.rust-lang.org/std/io/trait.IsTerminal.html).
 
 ### Minimum Rust version policy
 
-This crate's minimum supported `rustc` version is `1.72.0`.
+This crate's minimum supported `rustc` version is `1.80.0`.
 
 The current policy is that the minimum Rust version required to use this crate
 can be increased in minor version updates. For example, if `crate 1.0` requires
