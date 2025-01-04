@@ -27,6 +27,17 @@ fn parse_number(s: &str) -> Option<u8> {
     }
 }
 
+#[inline]
+fn parse_percent_or_255(s: &str) -> Option<(u8, bool)> {
+    s.strip_suffix('%')
+        .and_then(|s| {
+            s.parse::<f32>()
+                .ok()
+                .map(|t| ((t * 255.0 / 100.0).round() as u8, true))
+        })
+        .or_else(|| parse_number(s).map(|t| (t, false)))
+}
+
 /// Parses a string in the "rgb(x, y, z)" format, where x, y, and z are numbers in decimal or hexadecimal.
 ///
 /// # Parameters:
@@ -48,21 +59,26 @@ pub fn parse_rgb(s: &str) -> Result<Color, ParseColorError> {
         s
     };
 
-    let codes: Vec<&str> = trimmed.split(',').collect();
-    if codes.len() != 3 {
+    let normalized = trimmed.replace([',', '/'], " ");
+    let components: Vec<&str> = normalized.split_whitespace().collect();
+
+    // Ensure exactly three components exist
+    if components.len() != 3 {
         return Err(ParseColorError {
             kind: ParseColorErrorKind::InvalidRgb,
             given: s.to_string(),
         });
     }
 
-    let colors: Result<Vec<u8>, _> = codes
+    let colors: Result<Vec<u8>, ParseColorError> = components
         .iter()
-        .map(|&code| {
-            parse_number(code).ok_or_else(|| ParseColorError {
-                kind: ParseColorErrorKind::InvalidRgb,
-                given: s.to_string(),
-            })
+        .map(|&component| {
+            parse_percent_or_255(component).map(|(value, _)| value).ok_or_else(
+                || ParseColorError {
+                    kind: ParseColorErrorKind::InvalidRgb,
+                    given: s.to_string(),
+                },
+            )
         })
         .collect();
 
@@ -114,7 +130,8 @@ pub fn parse_hex(s: &str) -> Result<Color, ParseColorError> {
 /// A `Result<Color, ParseColorError>`. On success, it returns a valid `Color` variant.
 /// On failure, it returns a `ParseColorError` describing the issue with the input.
 pub fn parse_other(s: &str) -> Result<Color, ParseColorError> {
-    let codes: Vec<&str> = s.split(',').collect();
+    let s = s.replace([',', '/'], " ");
+    let codes = s.split_whitespace().collect::<Vec<&str>>();
     if codes.len() == 1 {
         if let Some(n) = parse_number(codes[0]) {
             Ok(Color::Ansi256(n))
@@ -130,7 +147,7 @@ pub fn parse_other(s: &str) -> Result<Color, ParseColorError> {
             })
         }
     } else if codes.len() == 3 {
-        parse_rgb(s)
+        parse_rgb(s.as_str())
     } else {
         Err(if s.contains(",") {
             ParseColorError {

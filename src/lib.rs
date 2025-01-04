@@ -2175,10 +2175,10 @@ impl Color {
 
     /// Parses a numeric color string, either ANSI or RGB.
     fn eval(s: &'static str) -> Result<Color, ParseColorError> {
-        if s.starts_with("rgb(") {
-            parse_rgb(s)
-        } else if s.starts_with("#") {
+        if s.starts_with("#") {
             parse_hex(s)
+        } else if s.starts_with("rgb(") {
+            parse_rgb(s)
         } else {
             parse_other(s)
         }
